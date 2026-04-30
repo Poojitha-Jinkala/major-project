@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}All Results — SmartVote{% endblock %}
+{% block content %}
+<section class="results-section">
+  <div class="container">
+    <div class="results-header">
+      <h1>📊 Election Results</h1>
+      <p>Browse results from completed and publicly visible elections</p>
+    </div>
+    {% if elections %}
+    <div class="elections-grid">
+      {% for election in elections %}
+      <div class="election-card ended">
+        <div class="election-card-header">
+          <span class="badge badge-secondary">📊 Results Available</span>
+          <span class="election-votes">{{ election.total_votes }} votes</span>
+        </div>
+        <h3>{{ election.title }}</h3>
+        <p>{{ election.description|truncatechars:100 }}</p>
+        <div class="election-meta">
+          <span>📅 {{ election.start_date|date:"d M Y" }} — {{ election.end_date|date:"d M Y" }}</span>
+        </div>
+        <div class="election-actions">
+          <a href="{% url 'results' election.id %}" class="btn btn-outline">View Results →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No Results Available Yet</h3>
+      <p>Results will be published here after elections conclude.</p>
+      <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

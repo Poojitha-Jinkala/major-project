@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Vote Confirmed — SmartVote{% endblock %}
+{% block content %}
+
+<section class="success-section">
+  <div class="success-container">
+    <div class="success-animation">
+      <div class="success-circle">
+        <span class="success-check">✓</span>
+      </div>
+    </div>
+    <h1>Vote Submitted!</h1>
+    <p class="success-sub">Your vote has been <strong>securely recorded</strong> and encrypted.</p>
+
+    {% if vote %}
+    <div class="vote-receipt">
+      <h3>🧾 Vote Receipt</h3>
+      <div class="receipt-row">
+        <span>Election</span>
+        <strong>{{ election.title }}</strong>
+      </div>
+      <div class="receipt-row">
+        <span>Candidate</span>
+        <strong>{{ vote.candidate.name }}</strong>
+      </div>
+      <div class="receipt-row">
+        <span>Party</span>
+        <strong>{{ vote.candidate.party }}</strong>
+      </div>
+      <div class="receipt-row">
+        <span>Voted At</span>
+        <strong>{{ vote.timestamp|date:"d M Y, h:i:s A" }}</strong>
+      </div>
+      <div class="receipt-row hash-row">
+        <span>Verification Hash</span>
+        <code class="vote-hash">{{ vote.vote_hash|truncatechars:32 }}...</code>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="success-actions">
+      <a href="{% url 'dashboard' %}" class="btn btn-primary">← Back to Dashboard</a>
+      {% if election.show_results or election.has_ended %}
+        <a href="{% url 'results' election.id %}" class="btn btn-outline">View Results →</a>
+      {% endif %}
+    </div>
+
+    <p class="success-note">🔒 Your vote identity is kept private. The hash above is proof of your participation without revealing your choice to others.</p>
+  </div>
+</section>
+{% endblock %}

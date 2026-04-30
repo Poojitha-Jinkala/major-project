@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}{{ election.title }} — SmartVote{% endblock %}
+{% block content %}
+
+<section class="voting-section">
+  <div class="container">
+
+    <div class="voting-header">
+      <a href="{% url 'dashboard' %}" class="back-link">← Back to Dashboard</a>
+      <div class="election-status-bar">
+        {% if election.is_ongoing %}
+          <span class="election-live-badge large">● LIVE</span>
+        {% elif election.has_ended %}
+          <span class="badge badge-secondary">Closed</span>
+        {% else %}
+          <span class="badge badge-info">Not Started</span>
+        {% endif %}
+        <span>{{ election.total_votes }} votes cast so far</span>
+      </div>
+    </div>
+
+    <div class="voting-layout">
+
+      <!-- Left: Election Info -->
+      <div class="election-info-panel">
+        <h1>{{ election.title }}</h1>
+        <p class="election-desc">{{ election.description }}</p>
+        <div class="election-timeline">
+          <div class="timeline-item">
+            <span class="tl-icon">🟢</span>
+            <div><strong>Start</strong><br>{{ election.start_date|date:"d M Y, h:i A" }}</div>
+          </div>
+          <div class="timeline-item">
+            <span class="tl-icon">🔴</span>
+            <div><strong>End</strong><br>{{ election.end_date|date:"d M Y, h:i A" }}</div>
+          </div>
+        </div>
+
+        {% if election.is_ongoing %}
+        <div class="countdown-box">
+          <div class="countdown-label">⏱️ Time Remaining</div>
+          <div class="countdown-timer large" id="mainCountdown" data-end="{{ election.end_date|date:'c' }}">Loading...</div>
+        </div>
+        {% endif %}
+
+        <div class="security-note">
+          <div class="security-icon">🔐</div>
+          <div>
+            <strong>Your vote is secure</strong>
+            <p>All votes are encrypted using SHA-256 hashing. Once cast, your vote cannot be changed or identified personally.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Voting Form -->
+      <div class="voting-form-panel">
+        {% if already_voted %}
+          <div class="already-voted-banner">
+            <div class="av-icon">✅</div>
+            <h2>You have already voted!</h2>
+            <p>Your vote in this election has been securely recorded. Each voter can only vote once per election.</p>
+            {% if election.show_results or election.has_ended %}
+              <a href="{% url 'results' election.id %}" class="btn btn-primary">View Results →</a>
+            {% else %}
+              <a href="{% url 'dashboard' %}" class="btn btn-outline">← Back to Dashboard</a>
+            {% endif %}
+          </div>
+        {% elif not election.is_ongoing %}
+          <div class="already-voted-banner">
+            <div class="av-icon">⏱️</div>
+            <h2>Voting is not open</h2>
+            <p>This election is {% if election.has_ended %}closed{% else %}not yet started{% endif %}.</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline">← Back to Dashboard</a>
+          </div>
+        {% else %}
+          <h2>Cast Your Vote</h2>
+          <p class="voting-instruction">Select one candidate below and click "Submit Vote"</p>
+
+          <form method="post" id="voteForm">
+            {% csrf_token %}
+            <div class="candidates-list">
+              {% for candidate in candidates %}
+              <label class="candidate-option" for="candidate_{{ candidate.id }}">
+                <input type="radio" name="candidate" id="candidate_{{ candidate.id }}" value="{{ candidate.id }}" class="candidate-radio-input">
+                <div class="candidate-card-inner">
+                  <div class="candidate-avatar">
+                    {% if candidate.photo %}
+                      <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}">
+                    {% else %}
+                      <div class="candidate-avatar-placeholder">{{ candidate.name|first }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="candidate-details">
+                    <div class="candidate-party-symbol">{{ candidate.party_symbol }}</div>
+                    <h3 class="candidate-name">{{ candidate.name }}</h3>
+                    <span class="candidate-party">{{ candidate.party }}</span>
+                    <span class="candidate-age">Age: {{ candidate.age }} | {{ candidate.qualification }}</span>
+                    {% if candidate.bio %}<p class="candidate-bio">{{ candidate.bio|truncatechars:100 }}</p>{% endif %}
+                  </div>
+                  <div class="select-indicator">✓</div>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+
+            <!-- Confirm Modal -->
+            <button type="button" class="btn btn-primary btn-full" id="openConfirmBtn" disabled>
+              🗳️ Submit My Vote
+            </button>
+          </form>
+
+          <!-- Confirmation Modal -->
+          <div class="modal-overlay" id="confirmModal">
+            <div class="modal-card">
+              <div class="modal-icon">🗳️</div>
+              <h3>Confirm Your Vote</h3>
+              <p>You are voting for:</p>
+              <div class="confirm-candidate" id="confirmCandidate">—</div>
+              <p class="modal-warning">⚠️ This action cannot be undone. Once submitted, your vote is final.</p>
+              <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="document.getElementById('voteForm').submit()">Confirm Vote ✓</button>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+  const radios = document.querySelectorAll('.candidate-radio-input');
+  const submitBtn = document.getElementById('openConfirmBtn');
+  const confirmDiv = document.getElementById('confirmCandidate');
+
+  radios.forEach(r => {
+    r.addEventListener('change', () => {
+      const label = r.closest('.candidate-option');
+      const name = label.querySelector('.candidate-name').textContent;
+      const party = label.querySelector('.candidate-party').textContent;
+      if (submitBtn) submitBtn.disabled = false;
+      if (confirmDiv) confirmDiv.innerHTML = `<strong>${name}</strong><br><small>${party}</small>`;
+      document.querySelectorAll('.candidate-option').forEach(l => l.classList.remove('selected'));
+      label.classList.add('selected');
+    });
+  });
+
+  if (submitBtn) submitBtn.addEventListener('click', () => {
+    document.getElementById('confirmModal').classList.add('active');
+  });
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+  }
+</script>
+{% endblock %}

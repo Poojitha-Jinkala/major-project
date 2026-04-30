@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}SmartVote — Secure Online Voting{% endblock %}
+{% block content %}
+
+<!-- ─── Hero ───────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🔒 Secure & Encrypted Voting Platform</div>
+    <h1 class="hero-title">Your Vote.<br><span class="gradient-text">Your Voice.</span></h1>
+    <p class="hero-subtitle">A next-generation online voting system with biometric-grade authentication, encrypted vote storage, and real-time results — ensuring every vote counts, safely.</p>
+    <div class="hero-actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">Go to Dashboard →</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Register to Vote</a>
+        <a href="{% url 'login' %}" class="btn btn-outline btn-lg">Login</a>
+      {% endif %}
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-number" data-count="{{ total_voters }}">0</span><span class="stat-label">Registered Voters</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-number" data-count="{{ total_votes_cast }}">0</span><span class="stat-label">Votes Cast</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-number" data-count="{{ total_elections }}">0</span><span class="stat-label">Elections Held</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="ballot-card floating">
+      <div class="ballot-header">🗳️ Secure Ballot</div>
+      <div class="ballot-option selected">✅ Candidate A</div>
+      <div class="ballot-option">⭕ Candidate B</div>
+      <div class="ballot-option">⭕ Candidate C</div>
+      <div class="ballot-hash">SHA-256: a3f9c2...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features ──────────────────────────────────────────────────────────── -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Why SmartVote?</h2>
+      <p>Built with security, transparency, and voter trust at its core</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Voter Authentication</h3>
+        <p>Multi-layer verification with unique Voter ID and secure password ensures only eligible voters can participate.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Encrypted Votes</h3>
+        <p>Every vote is stored as a SHA-256 cryptographic hash, making tampering impossible and audits easy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚫</div>
+        <h3>Duplicate Prevention</h3>
+        <p>Smart duplicate detection ensures each voter casts exactly one vote per election — no exceptions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Real-time Results</h3>
+        <p>Live vote counts and beautiful bar-chart visualizations once the election concludes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <h3>Time-Bound Elections</h3>
+        <p>Elections have clear start and end times. Voting outside the window is automatically blocked.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Kaggle Voter Data</h3>
+        <p>Supports bulk import of up to 5,000 voter records from CSV datasets for large-scale elections.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Active Elections ───────────────────────────────────────────────────── -->
+{% if active_elections %}
+<section class="elections-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>🔴 Live Elections</h2>
+      <p>Ongoing elections open for voting right now</p>
+    </div>
+    <div class="elections-grid">
+      {% for election in active_elections %}
+      <div class="election-card">
+        <div class="election-card-header">
+          <span class="election-live-badge">● LIVE</span>
+          <span class="election-votes">{{ election.total_votes }} votes</span>
+        </div>
+        <h3>{{ election.title }}</h3>
+        <p>{{ election.description|truncatechars:120 }}</p>
+        <div class="election-meta">
+          <span>⏰ Ends: {{ election.end_date|date:"d M Y, h:i A" }}</span>
+          <span>👤 {{ election.candidates.count }} candidates</span>
+        </div>
+        <div class="election-actions">
+          {% if user.is_authenticated %}
+            <a href="{% url 'election_detail' election.id %}" class="btn btn-primary">Vote Now</a>
+          {% else %}
+            <a href="{% url 'login' %}?next={% url 'election_detail' election.id %}" class="btn btn-primary">Login to Vote</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ─── How it Works ──────────────────────────────────────────────────────── -->
+<section class="how-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>Four simple steps to cast your secure vote</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><h3>Register</h3><p>Create your account with a valid Voter ID and personal details.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="step-num">02</div><h3>Login</h3><p>Authenticate securely with your username and password.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="step-num">03</div><h3>Vote</h3><p>Choose your candidate and submit your encrypted ballot.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step-card"><div class="step-num">04</div><h3>Verify</h3><p>Receive a confirmation and track results after the election ends.</p></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

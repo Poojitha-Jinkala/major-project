@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Register — SmartVote{% endblock %}
+{% block content %}
+
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-icon">📝</div>
+        <h1>Voter Registration</h1>
+        <p>Create your secure voting account</p>
+      </div>
+
+      <form method="post" class="auth-form" id="registerForm" novalidate>
+        {% csrf_token %}
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_full_name">Full Name *</label>
+            {{ form.full_name }}
+            {% if form.full_name.errors %}<span class="form-error">{{ form.full_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_voter_id">Voter ID *</label>
+            {{ form.voter_id }}
+            <small class="form-hint">Your official government-issued Voter ID (e.g. AP1234567890)</small>
+            {% if form.voter_id.errors %}<span class="form-error">{{ form.voter_id.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_username">Username *</label>
+            {{ form.username }}
+            {% if form.username.errors %}<span class="form-error">{{ form.username.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_email">Email *</label>
+            {{ form.email }}
+            {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_age">Age *</label>
+            {{ form.age }}
+            {% if form.age.errors %}<span class="form-error">{{ form.age.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_gender">Gender *</label>
+            {{ form.gender }}
+            {% if form.gender.errors %}<span class="form-error">{{ form.gender.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_state">State *</label>
+            {{ form.state }}
+            {% if form.state.errors %}<span class="form-error">{{ form.state.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_district">District</label>
+            {{ form.district }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_phone">Phone Number</label>
+          {{ form.phone }}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="id_password1">Password *</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}<span class="form-error">{{ form.password1.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_password2">Confirm Password *</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}<span class="form-error">{{ form.password2.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-check-group">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">I confirm that all information provided is accurate and I am eligible to vote.</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
+          <span class="btn-text">Create Voter Account</span>
+          <span class="btn-loader hidden">⏳</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already registered? <a href="{% url 'login' %}">Login here</a>
+      </div>
+    </div>
+
+    <div class="auth-info-panel">
+      <h3>📋 Registration Requirements</h3>
+      <ul class="info-list">
+        <li>✅ Must be 18 years or older</li>
+        <li>✅ Valid government-issued Voter ID</li>
+        <li>✅ Each Voter ID can only register once</li>
+        <li>✅ Password must be at least 8 characters</li>
+        <li>🔒 Your data is encrypted and secure</li>
+        <li>🗳️ One vote per election enforced</li>
+      </ul>
+      <div class="security-badge">
+        <span>🛡️</span>
+        <div>
+          <strong>Bank-Grade Security</strong>
+          <p>SHA-256 vote hashing • CSRF protection • Session authentication</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

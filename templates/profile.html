@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — SmartVote{% endblock %}
+{% block content %}
+
+<section class="profile-section">
+  <div class="container">
+    <div class="profile-layout">
+      <!-- Profile Details -->
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            {% if voter_profile.profile_photo %}
+              <img src="{{ voter_profile.profile_photo.url }}" alt="Profile Photo">
+            {% else %}
+              <div class="profile-avatar-placeholder">{{ user.username|first|upper }}</div>
+            {% endif %}
+          </div>
+          <h2>{{ voter_profile.full_name|default:user.username }}</h2>
+          <span class="badge {% if voter_profile.is_verified %}badge-success{% else %}badge-warning{% endif %}">
+            {% if voter_profile.is_verified %}✅ Verified Voter{% else %}⏳ Verification Pending{% endif %}
+          </span>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-row">
+            <span class="detail-label">Voter ID</span>
+            <strong class="detail-value">{{ masked_voter_id }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Username</span>
+            <strong class="detail-value">@{{ user.username }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Email</span>
+            <strong class="detail-value">{{ user.email }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Age / Gender</span>
+            <strong class="detail-value">{{ voter_profile.age }} / {{ voter_profile.get_gender_display }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">State / District</span>
+            <strong class="detail-value">{{ voter_profile.get_state_display }} - {{ voter_profile.district }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Registered On</span>
+            <strong class="detail-value">{{ voter_profile.registered_at|date:"d M Y" }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voting History -->
+      <div class="voting-history-card">
+        <h3>📜 My Voting History</h3>
+        {% if votes_cast %}
+          <div class="history-list">
+            {% for vote in votes_cast %}
+              <div class="history-item">
+                <div class="history-icon">🗳️</div>
+                <div class="history-info">
+                  <h4>{{ vote.election.title }}</h4>
+                  <span class="history-date">{{ vote.timestamp|date:"d M Y, h:i A" }}</span>
+                  <div class="history-hash" title="Your secure vote hash">
+                    Hash: <code>{{ vote.vote_hash|truncatechars:20 }}...</code>
+                  </div>
+                </div>
+                <div class="history-action">
+                  {% if vote.election.show_results or vote.election.has_ended %}
+                    <a href="{% url 'results' vote.election.id %}" class="btn btn-outline btn-sm">View Results</a>
+                  {% else %}
+                    <span class="badge badge-info">Awaiting Results</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h4>No votes cast yet</h4>
+            <p>You haven't participated in any elections.</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary mt-3">View Active Elections</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

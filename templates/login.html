@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Login — SmartVote{% endblock %}
+{% block content %}
+
+<section class="auth-section auth-section-center">
+  <div class="login-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-icon">🔐</div>
+        <h1>Voter Login</h1>
+        <p>Sign in to access your voting portal</p>
+      </div>
+
+      <form method="post" class="auth-form" id="loginForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_username">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}<span class="form-error">{{ form.username.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+          <label for="id_password">Password</label>
+          <div class="password-wrapper">
+            {{ form.password }}
+            <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+          </div>
+          {% if form.password.errors %}<span class="form-error">{{ form.password.errors.0 }}</span>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          🔓 Login to Vote
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>or</span></div>
+      <div class="auth-footer">
+        New voter? <a href="{% url 'register' %}">Register here →</a>
+      </div>
+    </div>
+
+    <div class="login-info">
+      <div class="info-card">
+        <h3>🗳️ SmartVote</h3>
+        <p>Your secure gateway to digital democracy. Cast your vote with confidence — every ballot is encrypted and tamper-proof.</p>
+        <ul class="info-checklist">
+          <li>✅ Single-vote enforcement per election</li>
+          <li>✅ End-to-end vote encryption</li>
+          <li>✅ Real-time results after elections close</li>
+          <li>✅ Full audit trail for transparency</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function togglePassword() {
+  const pwd = document.getElementById('id_password');
+  pwd.type = pwd.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}
